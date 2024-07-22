@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 145355081815.dkr.ecr.us-east-1.amazonaws.com
+      - REPOSITORY_URI=145355081815.dkr.ecr.us-east-1.amazonaws.com/sharknode:latest
+  build:
+    commands:
+      - docker build -t sharknode .
+      - docker tag sharknode:latest 145355081815.dkr.ecr.us-east-1.amazonaws.com/sharknode:latest
+  post_build:
+    commands:
+      - docker push 145355081815.dkr.ecr.us-east-1.amazonaws.com/sharknode:latest
+      - printf '[{"name":"sharknode","imageUri":"%s"}]' 145355081815.dkr.ecr.us-east-1.amazonaws.com/sharknode:latest > imagedefinitions.json
+      - cat imagedefinitions.json 
+artifacts:
+    files: imagedefinitions.json
